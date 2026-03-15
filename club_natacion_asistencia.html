@@ -1,0 +1,450 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif}
+:root{
+--azul:#1a6fb5;--azul-claro:#e6f1fb;--azul-med:#85b7eb;
+--verde:#3B6D11;--verde-claro:#EAF3DE;
+--rojo:#A32D2D;--rojo-claro:#FCEBEB;
+--gris:#f7f8fa;--borde:rgba(0,0,0,0.1);
+}
+.app{max-width:900px;margin:0 auto;padding:1rem}
+.header{background:var(--azul);color:#fff;border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:12px}
+.header-icon{font-size:28px}
+.header h1{font-size:20px;font-weight:600}
+.header p{font-size:13px;opacity:0.8}
+.tabs{display:flex;gap:6px;margin-bottom:1.2rem;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;border:1px solid var(--borde);background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:#555;transition:all .15s}
+.tab.active{background:var(--azul);color:#fff;border-color:var(--azul)}
+.tab:hover:not(.active){background:var(--azul-claro);border-color:var(--azul-med)}
+.panel{display:none}.panel.active{display:block}
+.card{background:#fff;border:1px solid var(--borde);border-radius:12px;padding:1.2rem;margin-bottom:1rem}
+.card-title{font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.card-title span{font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat-card{background:var(--azul-claro);border-radius:10px;padding:14px;text-align:center}
+.stat-num{font-size:26px;font-weight:700;color:var(--azul)}
+.stat-label{font-size:12px;color:#555;margin-top:2px}
+label{font-size:13px;color:#555;display:block;margin-bottom:4px}
+select,input{width:100%;padding:8px 10px;border:1px solid var(--borde);border-radius:8px;font-size:14px;color:#333;background:#fff;margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s}
+.btn-primary{background:var(--azul);color:#fff}
+.btn-primary:hover{background:#1558a0}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-success{background:var(--verde);color:#fff}
+.btn-danger{background:var(--rojo);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--borde);color:#555}
+.btn-ghost:hover{background:var(--gris)}
+.alumno-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:1px solid var(--borde);margin-bottom:8px;background:#fafafa}
+.alumno-avatar{width:36px;height:36px;border-radius:50%;background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.alumno-nombre{flex:1;font-size:14px;font-weight:500}
+.alumno-grupo{font-size:12px;color:#888}
+.asist-btns{display:flex;gap:6px;flex-shrink:0}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-p{background:var(--verde-claro);color:var(--verde)}
+.badge-a{background:var(--rojo-claro);color:var(--rojo)}
+.badge-j{background:#faeeda;color:#854F0B}
+.fecha-sel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
+.fecha-sel label{margin:0;white-space:nowrap}
+.fecha-sel input{width:auto;margin:0;flex:1;min-width:140px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;background:var(--azul-claro);color:var(--azul);font-weight:600;font-size:12px}
+td{padding:8px 10px;border-bottom:1px solid #f0f0f0}
+tr:hover td{background:#fafafa}
+.progress-bar{height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;border-radius:4px;transition:width .3s}
+.pct-verde{background:var(--verde)}
+.pct-amarillo{background:#EF9F27}
+.pct-rojo{background:var(--rojo)}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.filtros select{width:auto;margin:0;flex:1;min-width:130px}
+.empty{text-align:center;color:#aaa;padding:2rem;font-size:13px}
+.resumen-dia{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.chip{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500}
+.guardado-ok{color:var(--verde);font-size:13px;display:none}
+.mes-nav{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.mes-nav button{background:none;border:1px solid var(--borde);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:18px;color:var(--azul)}
+.mes-nav span{font-weight:600;font-size:15px;flex:1;text-align:center}
+</style>
+
+<div class="app">
+<div class="header">
+  <div class="header-icon">🏊</div>
+  <div>
+    <h1>Club de Natación — Control de Asistencia</h1>
+    <p id="fecha-hoy"></p>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="cambiarTab('tomar')">📋 Tomar Asistencia</button>
+  <button class="tab" onclick="cambiarTab('historial')">📅 Historial</button>
+  <button class="tab" onclick="cambiarTab('reporte')">📊 Reporte Mensual</button>
+  <button class="tab" onclick="cambiarTab('alumnos')">👦 Alumnos</button>
+</div>
+
+<!-- TAB: TOMAR ASISTENCIA -->
+<div id="panel-tomar" class="panel active">
+  <div class="card">
+    <div class="card-title"><span>📋</span> Registrar Asistencia del Día</div>
+    <div class="grid2">
+      <div>
+        <label>Fecha</label>
+        <input type="date" id="fecha-asistencia">
+      </div>
+      <div>
+        <label>Grupo</label>
+        <select id="grupo-asistencia" onchange="renderAlumnos()">
+          <option value="">Todos los grupos</option>
+          <option value="Delfines">🐬 Delfines (6-8 años)</option>
+          <option value="Tiburones">🦈 Tiburones (9-11 años)</option>
+          <option value="Orcas">🐋 Orcas (12-14 años)</option>
+          <option value="Competición">🏆 Competición (+15 años)</option>
+        </select>
+      </div>
+    </div>
+    <div class="resumen-dia">
+      <span class="chip" style="background:var(--verde-claro);color:var(--verde)">✓ Presentes: <b id="cnt-p">0</b></span>
+      <span class="chip" style="background:var(--rojo-claro);color:var(--rojo)">✗ Ausentes: <b id="cnt-a">0</b></span>
+      <span class="chip" style="background:#faeeda;color:#854F0B">~ Justificados: <b id="cnt-j">0</b></span>
+      <span class="chip" style="background:#eee;color:#666">◎ Sin marcar: <b id="cnt-s">0</b></span>
+    </div>
+    <div id="lista-alumnos"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+      <button class="btn btn-primary" onclick="guardarAsistencia()">💾 Guardar Asistencia</button>
+      <button class="btn btn-ghost btn-sm" onclick="marcarTodos('P')">✓ Todos presentes</button>
+      <span class="guardado-ok" id="guardado-msg">✅ ¡Guardado correctamente!</span>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: HISTORIAL -->
+<div id="panel-historial" class="panel">
+  <div class="card">
+    <div class="card-title"><span>📅</span> Historial de Asistencias</div>
+    <div class="filtros">
+      <select id="filtro-grupo" onchange="renderHistorial()">
+        <option value="">Todos los grupos</option>
+        <option value="Delfines">🐬 Delfines</option>
+        <option value="Tiburones">🦈 Tiburones</option>
+        <option value="Orcas">🐋 Orcas</option>
+        <option value="Competición">🏆 Competición</option>
+      </select>
+      <select id="filtro-alumno" onchange="renderHistorial()">
+        <option value="">Todos los alumnos</option>
+      </select>
+      <input type="month" id="filtro-mes" onchange="renderHistorial()" style="width:auto;margin:0;flex:1;min-width:140px">
+    </div>
+    <div id="tabla-historial"></div>
+  </div>
+</div>
+
+<!-- TAB: REPORTE MENSUAL -->
+<div id="panel-reporte" class="panel">
+  <div class="card">
+    <div class="card-title"><span>📊</span> Reporte de Asistencia Mensual</div>
+    <div class="mes-nav">
+      <button onclick="cambiarMes(-1)">&#8249;</button>
+      <span id="mes-label"></span>
+      <button onclick="cambiarMes(1)">&#8250;</button>
+    </div>
+    <div class="filtros">
+      <select id="reporte-grupo" onchange="renderReporte()">
+        <option value="">Todos los grupos</option>
+        <option value="Delfines">🐬 Delfines</option>
+        <option value="Tiburones">🦈 Tiburones</option>
+        <option value="Orcas">🐋 Orcas</option>
+        <option value="Competición">🏆 Competición</option>
+      </select>
+    </div>
+    <div id="stats-reporte" class="grid3" style="margin-bottom:1rem"></div>
+    <div id="tabla-reporte"></div>
+  </div>
+</div>
+
+<!-- TAB: ALUMNOS -->
+<div id="panel-alumnos" class="panel">
+  <div class="card">
+    <div class="card-title"><span>👦</span> Gestión de Alumnos</div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div>
+        <label>Nombre completo</label>
+        <input type="text" id="nuevo-nombre" placeholder="Ej: Ana García López">
+      </div>
+      <div>
+        <label>Grupo</label>
+        <select id="nuevo-grupo">
+          <option value="Delfines">🐬 Delfines (6-8 años)</option>
+          <option value="Tiburones">🦈 Tiburones (9-11 años)</option>
+          <option value="Orcas">🐋 Orcas (12-14 años)</option>
+          <option value="Competición">🏆 Competición (+15 años)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="agregarAlumno()" style="margin-bottom:1rem">+ Agregar Alumno</button>
+    <div id="lista-alumnos-admin"></div>
+  </div>
+</div>
+</div>
+
+<script>
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let mesReporte=new Date();
+mesReporte.setDate(1);
+
+let alumnos=[
+  {id:1,nombre:'Sofía Martínez',grupo:'Delfines'},
+  {id:2,nombre:'Lucas Pérez',grupo:'Delfines'},
+  {id:3,nombre:'Valentina Torres',grupo:'Delfines'},
+  {id:4,nombre:'Matías Rojas',grupo:'Tiburones'},
+  {id:5,nombre:'Camila Flores',grupo:'Tiburones'},
+  {id:6,nombre:'Sebastián Muñoz',grupo:'Tiburones'},
+  {id:7,nombre:'Isabella González',grupo:'Orcas'},
+  {id:8,nombre:'Benjamín Castro',grupo:'Orcas'},
+  {id:9,nombre:'Emilia Vargas',grupo:'Competición'},
+  {id:10,nombre:'Tomás Silva',grupo:'Competición'},
+];
+let asistencias={};
+let nextId=11;
+
+function initFechas(){
+  const hoy=new Date();
+  const str=hoy.toISOString().split('T')[0];
+  document.getElementById('fecha-asistencia').value=str;
+  document.getElementById('fecha-hoy').textContent=hoy.toLocaleDateString('es-CL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const ym=str.slice(0,7);
+  document.getElementById('filtro-mes').value=ym;
+  mesReporte=new Date(hoy.getFullYear(),hoy.getMonth(),1);
+}
+
+function iniciales(n){return n.split(' ').slice(0,2).map(x=>x[0]).join('').toUpperCase()}
+function getGrupoEmoji(g){return g==='Delfines'?'🐬':g==='Tiburones'?'🦈':g==='Orcas'?'🐋':'🏆'}
+
+function cambiarTab(t){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+  if(t==='historial'){poblarFiltroAlumno();renderHistorial();}
+  if(t==='reporte'){renderMesLabel();renderReporte();}
+  if(t==='alumnos'){renderAlumnosAdmin();}
+}
+
+function keyFecha(fecha){return fecha}
+
+function renderAlumnos(){
+  const fecha=document.getElementById('fecha-asistencia').value;
+  const grupo=document.getElementById('grupo-asistencia').value;
+  const lista=alumnos.filter(a=>!grupo||a.grupo===grupo);
+  const key=keyFecha(fecha);
+  if(!asistencias[key])asistencias[key]={};
+  let html='';
+  lista.forEach(a=>{
+    const est=asistencias[key][a.id]||'';
+    html+=`<div class="alumno-row">
+      <div class="alumno-avatar">${iniciales(a.nombre)}</div>
+      <div style="flex:1">
+        <div class="alumno-nombre">${a.nombre}</div>
+        <div class="alumno-grupo">${getGrupoEmoji(a.grupo)} ${a.grupo}</div>
+      </div>
+      <div class="asist-btns">
+        <button class="btn btn-sm ${est==='P'?'btn-success':'btn-ghost'}" onclick="setEstado(${a.id},'P')">✓ P</button>
+        <button class="btn btn-sm ${est==='A'?'btn-danger':'btn-ghost'}" onclick="setEstado(${a.id},'A')">✗ A</button>
+        <button class="btn btn-sm ${est==='J'?'':'btn-ghost'}" style="${est==='J'?'background:#EF9F27;color:#fff;border:none':''}" onclick="setEstado(${a.id},'J')">~ J</button>
+      </div>
+    </div>`;
+  });
+  if(!html)html='<div class="empty">No hay alumnos en este grupo.</div>';
+  document.getElementById('lista-alumnos').innerHTML=html;
+  actualizarContadores();
+}
+
+function setEstado(id,est){
+  const fecha=document.getElementById('fecha-asistencia').value;
+  const key=keyFecha(fecha);
+  if(!asistencias[key])asistencias[key]={};
+  asistencias[key][id]=est;
+  renderAlumnos();
+}
+
+function marcarTodos(est){
+  const fecha=document.getElementById('fecha-asistencia').value;
+  const grupo=document.getElementById('grupo-asistencia').value;
+  const key=keyFecha(fecha);
+  if(!asistencias[key])asistencias[key]={};
+  alumnos.filter(a=>!grupo||a.grupo===grupo).forEach(a=>asistencias[key][a.id]=est);
+  renderAlumnos();
+}
+
+function actualizarContadores(){
+  const fecha=document.getElementById('fecha-asistencia').value;
+  const grupo=document.getElementById('grupo-asistencia').value;
+  const key=keyFecha(fecha);
+  const reg=asistencias[key]||{};
+  const lista=alumnos.filter(a=>!grupo||a.grupo===grupo);
+  let p=0,a=0,j=0,s=0;
+  lista.forEach(al=>{
+    const e=reg[al.id];
+    if(e==='P')p++;else if(e==='A')a++;else if(e==='J')j++;else s++;
+  });
+  document.getElementById('cnt-p').textContent=p;
+  document.getElementById('cnt-a').textContent=a;
+  document.getElementById('cnt-j').textContent=j;
+  document.getElementById('cnt-s').textContent=s;
+}
+
+function guardarAsistencia(){
+  const msg=document.getElementById('guardado-msg');
+  msg.style.display='inline';
+  setTimeout(()=>msg.style.display='none',2500);
+}
+
+function poblarFiltroAlumno(){
+  const sel=document.getElementById('filtro-alumno');
+  sel.innerHTML='<option value="">Todos los alumnos</option>';
+  alumnos.forEach(a=>{sel.innerHTML+=`<option value="${a.id}">${a.nombre}</option>`});
+}
+
+function renderHistorial(){
+  const grupo=document.getElementById('filtro-grupo').value;
+  const alumnoId=parseInt(document.getElementById('filtro-alumno').value)||0;
+  const mes=document.getElementById('filtro-mes').value;
+  const listaA=alumnos.filter(a=>(!grupo||a.grupo===grupo)&&(!alumnoId||a.id===alumnoId));
+  const fechas=Object.keys(asistencias).filter(f=>!mes||f.startsWith(mes)).sort().reverse();
+  if(!fechas.length||!listaA.length){
+    document.getElementById('tabla-historial').innerHTML='<div class="empty">No hay registros para mostrar.</div>';
+    return;
+  }
+  let html='<div style="overflow-x:auto"><table><thead><tr><th>Alumno</th><th>Grupo</th>';
+  fechas.slice(0,15).forEach(f=>{html+=`<th>${f.slice(5)}</th>`});
+  html+='</tr></thead><tbody>';
+  listaA.forEach(a=>{
+    html+=`<tr><td><b>${a.nombre}</b></td><td>${getGrupoEmoji(a.grupo)} ${a.grupo}</td>`;
+    fechas.slice(0,15).forEach(f=>{
+      const e=(asistencias[f]||{})[a.id]||'-';
+      const cls=e==='P'?'badge-p':e==='A'?'badge-a':e==='J'?'badge-j':'';
+      html+=`<td><span class="badge ${cls}">${e}</span></td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  document.getElementById('tabla-historial').innerHTML=html;
+}
+
+function renderMesLabel(){
+  document.getElementById('mes-label').textContent=MESES[mesReporte.getMonth()]+' '+mesReporte.getFullYear();
+}
+
+function cambiarMes(d){
+  mesReporte.setMonth(mesReporte.getMonth()+d);
+  renderMesLabel();renderReporte();
+}
+
+function renderReporte(){
+  const grupo=document.getElementById('reporte-grupo').value;
+  const ym=mesReporte.getFullYear()+'-'+String(mesReporte.getMonth()+1).padStart(2,'0');
+  const fechasMes=Object.keys(asistencias).filter(f=>f.startsWith(ym));
+  const listaA=alumnos.filter(a=>!grupo||a.grupo===grupo);
+  const totalClases=fechasMes.length;
+  if(!totalClases){
+    document.getElementById('stats-reporte').innerHTML='';
+    document.getElementById('tabla-reporte').innerHTML='<div class="empty">No hay clases registradas este mes.</div>';
+    return;
+  }
+  let totalP=0,totalA=0,totalJ=0;
+  const datos=listaA.map(a=>{
+    let p=0,aus=0,j=0;
+    fechasMes.forEach(f=>{
+      const e=(asistencias[f]||{})[a.id];
+      if(e==='P')p++;else if(e==='A')aus++;else if(e==='J')j++;
+    });
+    totalP+=p;totalA+=aus;totalJ+=j;
+    const pct=totalClases>0?Math.round((p/totalClases)*100):0;
+    return{...a,p,aus,j,pct,totalClases};
+  });
+  const totalReg=totalP+totalA+totalJ;
+  const pctGlobal=totalReg>0?Math.round((totalP/totalReg)*100):0;
+  document.getElementById('stats-reporte').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${totalClases}</div><div class="stat-label">Clases en el mes</div></div>
+    <div class="stat-card"><div class="stat-num">${pctGlobal}%</div><div class="stat-label">Asistencia global</div></div>
+    <div class="stat-card"><div class="stat-num">${listaA.length}</div><div class="stat-label">Alumnos</div></div>
+  `;
+  datos.sort((a,b)=>b.pct-a.pct);
+  let html='<table><thead><tr><th>Alumno</th><th>Grupo</th><th>P</th><th>A</th><th>J</th><th>Clases</th><th>% Asistencia</th></tr></thead><tbody>';
+  datos.forEach(d=>{
+    const col=d.pct>=80?'pct-verde':d.pct>=60?'pct-amarillo':'pct-rojo';
+    const colTxt=d.pct>=80?'var(--verde)':d.pct>=60?'#854F0B':'var(--rojo)';
+    html+=`<tr>
+      <td><b>${d.nombre}</b></td>
+      <td>${getGrupoEmoji(d.grupo)} ${d.grupo}</td>
+      <td style="color:var(--verde);font-weight:600">${d.p}</td>
+      <td style="color:var(--rojo);font-weight:600">${d.aus}</td>
+      <td style="color:#854F0B;font-weight:600">${d.j}</td>
+      <td>${d.totalClases}</td>
+      <td style="min-width:120px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1">
+            <div class="progress-bar"><div class="progress-fill ${col}" style="width:${d.pct}%"></div></div>
+          </div>
+          <span style="font-weight:700;font-size:13px;color:${colTxt};min-width:36px">${d.pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('tabla-reporte').innerHTML=html;
+}
+
+function renderAlumnosAdmin(){
+  let html='';
+  alumnos.forEach(a=>{
+    html+=`<div class="alumno-row">
+      <div class="alumno-avatar" style="background:${grupoColor(a.grupo)}">${iniciales(a.nombre)}</div>
+      <div style="flex:1">
+        <div class="alumno-nombre">${a.nombre}</div>
+        <div class="alumno-grupo">${getGrupoEmoji(a.grupo)} ${a.grupo}</div>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="eliminarAlumno(${a.id})">✕</button>
+    </div>`;
+  });
+  document.getElementById('lista-alumnos-admin').innerHTML=html||'<div class="empty">No hay alumnos registrados.</div>';
+}
+
+function grupoColor(g){
+  return g==='Delfines'?'#1a6fb5':g==='Tiburones'?'#0F6E56':g==='Orcas'?'#854F0B':'#993C1D';
+}
+
+function agregarAlumno(){
+  const nombre=document.getElementById('nuevo-nombre').value.trim();
+  const grupo=document.getElementById('nuevo-grupo').value;
+  if(!nombre)return;
+  alumnos.push({id:nextId++,nombre,grupo});
+  document.getElementById('nuevo-nombre').value='';
+  renderAlumnosAdmin();
+}
+
+function eliminarAlumno(id){
+  alumnos=alumnos.filter(a=>a.id!==id);
+  renderAlumnosAdmin();
+}
+
+function generarDatosDemo(){
+  const hoy=new Date();
+  for(let d=0;d<20;d++){
+    const fecha=new Date(hoy);
+    fecha.setDate(hoy.getDate()-d);
+    if(fecha.getDay()===0||fecha.getDay()===6)continue;
+    const key=fecha.toISOString().split('T')[0];
+    asistencias[key]={};
+    alumnos.forEach(a=>{
+      const r=Math.random();
+      asistencias[key][a.id]=r<0.75?'P':r<0.90?'A':'J';
+    });
+  }
+}
+
+initFechas();
+generarDatosDemo();
+renderAlumnos();
+</script>
